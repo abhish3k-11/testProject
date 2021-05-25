@@ -20,25 +20,35 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
+
+function createData(name, calories, fat, carbs, protein, price) {
+  return {
+    name, calories, fat, carbs, protein, price, history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  };
 }
 
 const rows = [
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Donut', 452, 25.0, 51, 4.9),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-  createData('Honeycomb', 408, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Jelly Bean', 375, 0.0, 94, 0.0),
-  createData('KitKat', 518, 26.0, 65, 7.0),
-  createData('Lollipop', 392, 0.2, 98, 0.0),
-  createData('Marshmallow', 318, 0, 81, 2.0),
-  createData('Nougat', 360, 19.0, 9, 37.0),
-  createData('Oreo', 437, 18.0, 63, 4.0),
+  createData('Cupcake', 305, 3.7, 67, 4.3, 3.99),
+  createData('Donut', 452, 25.0, 51, 4.9, 3.99),
+  createData('Eclair', 262, 16.0, 24, 6.0, 3.99),
+  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
+  createData('Gingerbread', 356, 16.0, 49, 3.9, 3.99),
+  createData('Honeycomb', 408, 3.2, 87, 6.5, 3.99),
+  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 3.99),
+  createData('Jelly Bean', 375, 0.0, 94, 0.0, 3.99),
+  createData('KitKat', 518, 26.0, 65, 7.0, 3.99),
+  createData('Lollipop', 392, 0.2, 98, 0.0, 3.99),
+  createData('Marshmallow', 318, 0, 81, 2.0, 3.99),
+  createData('Nougat', 360, 19.0, 9, 37.0, 3.99),
+  createData('Oreo', 437, 18.0, 63, 4.0, 3.99),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -136,13 +146,13 @@ const useToolbarStyles = makeStyles((theme) => ({
   highlight:
     theme.palette.type === 'light'
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
   title: {
     flex: '1 1 100%',
   },
@@ -213,7 +223,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -221,6 +231,8 @@ export default function EnhancedTable() {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const { row } = props;
+  const [open, setOpen] = React.useState(false);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -276,7 +288,7 @@ export default function EnhancedTable() {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
   return (
-    <div className={classes.root}>
+    <React.Fragment>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
@@ -312,6 +324,11 @@ export default function EnhancedTable() {
                       key={row.name}
                       selected={isItemSelected}
                     >
+                      <TableCell>
+                        <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+                          {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        </IconButton>
+                      </TableCell>
                       <TableCell padding="checkbox">
                         <Checkbox
                           checked={isItemSelected}
@@ -326,6 +343,8 @@ export default function EnhancedTable() {
                       <TableCell align="right">{row.carbs}</TableCell>
                       <TableCell align="right">{row.protein}</TableCell>
                     </TableRow>
+
+                    
                   );
                 })}
               {emptyRows > 0 && (
@@ -346,10 +365,13 @@ export default function EnhancedTable() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
-    </div>
+
+    </React.Fragment>
+
   );
 }
